@@ -14,6 +14,7 @@ match = webContent.decode("utf-8").find('POWERREVIEWS.display.render')
 # match equals index of first match occurence
 #-1 means not found
 print(match)
-
+# print(webContent[match:-1])
+print(webContent[match:-1].decode("utf-8").find('.render'))
 
 # print(webContent.decode("utf-8"))

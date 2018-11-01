@@ -3,6 +3,7 @@ from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 import pandas as pd
+import urllib.request
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
@@ -32,15 +33,40 @@ def main():
     #rename column Headers
     #https://chrisalbon.com/python/data_wrangling/pandas_rename_column_headers/
     headers = df.iloc[0]
-    print(headers)
+    # print(headers)
     df = df[1:]
     df.columns = headers
+    totalNumOfAccounts = len(df.index)
+    totalNumOfSource = 0
+    totalNumOfNoSource = 0
 
+    print(f'There are {totalNumOfAccounts} accounts audited')
+    # print(df['PDP Link Used'][1])
+    for url in df['PDP Link Used']:
+        response = urllib.request.urlopen(url)
+        webContent = response.read()
+        site = webContent.decode("utf-8")
+        match = site.find('POWERREVIEWS.display.render')
+        # match equals index of first match occurence
+        #-1 means not found
+        # print(match)
+        if match > 0:
+            totalNumOfSource += 1
+            # print('woohoo!')
+        else:
+            totalNumOfNoSource += 1
+
+
+    print(f'Sites with source code visible: {totalNumOfSource}')
+    print(f'{totalNumOfSource/totalNumOfAccounts*100}% visible')
+    print(f'Sites with source code NOT visible: {totalNumOfNoSource}')
+    print(f'{totalNumOfNoSource/totalNumOfAccounts*100}% visible')
     # #Pandas To Excel
     # writer = pd.ExcelWriter('output.xlsx')
     # df.to_excel(writer,'Sheet1')
     # writer.save()
 
+    #Pandas to CSV
     df.to_csv('test_csv.csv')
 
     # if not values:
